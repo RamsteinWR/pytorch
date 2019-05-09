@@ -92,14 +92,19 @@ struct TORCH_API RecordFunction {
 TORCH_API bool hasCallbacks();
 TORCH_API bool needsInputs();
 
+TORCH_API void setSamplingProbability(double);
+TORCH_API bool checkCallbacksEnabled();
+
 // optional argument - function's seq_no
 #define RECORD_FUNCTION(fn, inputs, ...) \
   torch::autograd::profiler::RecordFunction guard; \
   if (torch::autograd::profiler::hasCallbacks()) { \
-    if (torch::autograd::profiler::needsInputs()) { \
-      guard.before(fn, inputs, ##__VA_ARGS__); \
-    } else { \
-      guard.before(fn, ##__VA_ARGS__); \
+    if (torch::autograd::profiler::checkCallbacksEnabled()) { \
+      if (torch::autograd::profiler::needsInputs()) { \
+        guard.before(fn, inputs, ##__VA_ARGS__); \
+      } else { \
+        guard.before(fn, ##__VA_ARGS__); \
+      } \
     } \
   }
 

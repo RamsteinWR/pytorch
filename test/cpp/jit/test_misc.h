@@ -691,6 +691,8 @@ void testRecordFunction() {
             std::make_tuple(std::string(getFullName(&fn)), sizes));
       }, [](const autograd::profiler::RecordFunction&) {}, true);
 
+  autograd::profiler::setSamplingProbability(1.0);
+
   auto t = torch::randn({1, 2, 3}, at::kCPU);
   t.set_requires_grad(true);
   auto t2 = invokeTestRecordFunction(t);
@@ -797,7 +799,7 @@ void testModuleConversion() {
     // test cuda to cpu for params and buffers
     m->register_parameter("foo", torch::ones({}, at::kCUDA), false);
     m->register_buffer("bar", torch::ones({}, at::kCUDA));
-    
+
     m->to(at::kCUDA);
     m->to(at::kCPU);
     AT_ASSERT(m->get_parameter("foo").data().device().is_cpu());
@@ -807,7 +809,7 @@ void testModuleConversion() {
     // test cpu to cuda for params and buffers
     m->register_parameter("foo", torch::ones({}), false);
     m->register_buffer("bar", torch::ones({}));
-    
+
     m->to(at::kCUDA);
     AT_ASSERT(m->get_parameter("foo").data().device().is_cuda());
     AT_ASSERT(m->get_buffer("bar").data().device().is_cuda());
